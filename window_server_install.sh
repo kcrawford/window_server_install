@@ -6,6 +6,8 @@
 
 RESOURCES_DIR=`dirname "$0"`
 
+IHOOK_INPUT='/tmp/com.windowserver_install.ihook_input.log'
+
 # mount the dmg
 echo "mounting dmg..."
 DMG_MOUNT=`hdiutil attach -nobrowse "${RESOURCES_DIR}"/*.dmg | grep Apple_HFS | sed 's,.*/Volumes,/Volumes,g' | head -1`
@@ -47,7 +49,17 @@ if ! who | grep -q " console "; then
 
   # open iHook as needed to prevent User control and show progress
   echo "Starting iHook.app script..."
-  "${RESOURCES_DIR}"/iHook.app/Contents/MacOS/iHook"
+  echo "Beginning Package Installation..." > ${IHOOK_INPUT}
+  #echo "%BACKGROUNDSCALING TOFIT"> ${IHOOK_INPUT}
+  #echo "%BACKGROUND /etc/startup_bg.png"> ${IHOOK_INPUT}
+  echo "%BECOMEKEY"> ${IHOOK_INPUT}
+  echo "%UIMODE AUTOCRATIC"> ${IHOOK_INPUT}
+  echo "%HIDETIMER"> ${IHOOK_INPUT}
+  echo "%WINDOWLEVEL HIGH"> ${IHOOK_INPUT}
+  echo "%WINDOWSIZE MAX"> ${IHOOK_INPUT}
+  echo "%BEGINPOLE"> ${IHOOK_INPUT}
+
+  #"${RESOURCES_DIR}"/iHook.app/Contents/MacOS/iHook --no-titlebar --script=\"tail -999999 -f ${IHOOK_INPUT}\""
 
 else
   echo "User is already logged in, so we have a window server"
@@ -58,7 +70,7 @@ echo "Installing all pkgs in dmg mount..."
 for package in "${DMG_MOUNT}"/*pkg
 do
   echo "Installing ${package}..."
-  installer -pkg "${package}" -target / -verboseR
+  installer -pkg "${package}" -target / -verboseR >> ${IHOOK_INPUT}
 done
 
 # detach the dmg
