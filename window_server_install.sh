@@ -80,6 +80,9 @@ hdiutil detach "${DMG_MOUNT}"
 # if we logged in our own user, clean up and log it out
 if [ ! "${DID_CREATE_USER+xxx}" = "xxx" ]; then
 
+  defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUser
+  defaults delete /Library/Preferences/com.apple.loginwindow autoLoginUserUID
+
   # logout by killing loginwindow
   echo "Logging out temporary user..."
   killall loginwindow
